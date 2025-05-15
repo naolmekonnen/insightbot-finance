@@ -14,18 +14,26 @@ st.markdown("### App is running!")
 # Let user input a ticker
 ticker = st.text_input("Enter stock ticker (e.g. AAPL, MSFT, TSLA)", value="AAPL")
 
+# Cache stock data fetch
+@st.cache_data
+def fetch_data(ticker, start_date, end_date):
+    return yf.download(ticker, start=start_date, end=end_date, progress=False).reset_index()
+
 if ticker:
     st.write(f"Fetching data for: {ticker}")
 
-    # Pull 7-day stock data
     end_date = datetime.datetime.today()
     start_date = end_date - datetime.timedelta(days=7)
 
-    data = yf.download(ticker, start=start_date, end=end_date, progress=False)
-    data = data.reset_index()
+    # Add loading spinner while fetching
+    with st.spinner("Fetching stock data..."):
+        data = fetch_data(ticker, start_date, end_date)
 
-    # Show raw data table
+    # Show raw data
     st.dataframe(data)
+
+    # 📈 Chart of closing prices
+    st.line_chart(data['Close'])
 
     # Performance metrics section
     st.markdown("## 7-Day Performance Stats")
@@ -49,7 +57,6 @@ if ticker:
 # Simulated Reddit Sentiment Summary
 st.markdown("## Reddit Sentiment Summary (Simulated)")
 
-# Dummy post data
 dummy_posts = [
     "Just bought more AAPL. Long-term hold!",
     "Worried about the dip, but holding steady.",
@@ -58,17 +65,17 @@ dummy_posts = [
     "I’m buying every dip this month!"
 ]
 
-# Simulated sentiment counts
 positive = [p for p in dummy_posts if "bullish" in p or "buying" in p or "hold" in p]
 negative = [p for p in dummy_posts if "worried" in p or "sell-off" in p]
 
-# Display summary
 st.write("Posts Analyzed:", len(dummy_posts))
 st.write("Positive Mentions:", len(positive))
 st.write("Negative Mentions:", len(negative))
 
-# Expandable list of posts
 with st.expander("View Sample Reddit Posts"):
     for post in dummy_posts:
         st.markdown(f"- {post}")
 
+# GitHub link footer
+st.markdown("---")
+st.markdown("View the code on [GitHub](https://github.com/naolmekonnen/insightbot-finance)")
