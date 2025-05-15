@@ -14,6 +14,9 @@ st.markdown("### App is running!")
 # Let user input a ticker
 ticker = st.text_input("Enter stock ticker (e.g. AAPL, MSFT, TSLA)", value="AAPL")
 
+# Let user choose how many days of history to pull
+num_days = st.slider("Select number of days to analyze", min_value=5, max_value=30, value=7)
+
 # Cache stock data fetch
 @st.cache_data
 def fetch_data(ticker, start_date, end_date):
@@ -23,7 +26,7 @@ if ticker:
     st.write(f"Fetching data for: {ticker}")
 
     end_date = datetime.datetime.today()
-    start_date = end_date - datetime.timedelta(days=7)
+    start_date = end_date - datetime.timedelta(days=num_days)
 
     # Add loading spinner while fetching
     with st.spinner("Fetching stock data..."):
@@ -36,7 +39,7 @@ if ticker:
     st.line_chart(data['Close'])
 
     # Performance metrics section
-    st.markdown("## 7-Day Performance Stats")
+    st.markdown(f"## {num_days}-Day Performance Stats")
 
     try:
         start_price = float(data['Close'].iloc[0])
@@ -49,6 +52,14 @@ if ticker:
         st.write(f"End Price:   ${end_price:.2f}")
         st.write(f"Change:      ${price_change:.2f} ({percent_change:.2f}%)")
         st.write(f"Volatility (std dev of closing prices): ${volatility:.2f}")
+
+        # Simulated GPT-style summary
+        st.markdown("### AI Summary (Simulated)")
+        st.markdown(f"""
+        Over the last {num_days} days, **{ticker.upper()}** has shown a net change of **{percent_change:.2f}%**.
+        The stock experienced {'moderate' if volatility < 5 else 'high'} volatility, with a standard deviation of **${volatility:.2f}**.
+        Market sentiment based on community posts appears to be cautiously optimistic.
+        """)
 
     except Exception as e:
         st.error("Error calculating performance statistics.")
