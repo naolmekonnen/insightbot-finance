@@ -1,4 +1,7 @@
 streamlit
-yfinance
 pandas
-plotly
+numpy
+matplotlib
+altair
+scikit-learn
+requests
